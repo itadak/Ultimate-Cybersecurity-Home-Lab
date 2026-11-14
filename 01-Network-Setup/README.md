@@ -1,148 +1,74 @@
-# Network Infrastructure and Virtualization Setup
+# 01 — Network Infrastructure and Virtualization
 
-## Overview
+## Objective
 
-This section documents the virtualization infrastructure and network configuration developed for my Ultimate Cybersecurity Home Lab.
+Create a usable nested virtualization environment for a cybersecurity home lab, including management connectivity, a dedicated internal virtual bridge, and multiple cybersecurity virtual machines.
 
-The environment was built using VMware Workstation Pro and Proxmox VE to host multiple virtual machines for network security, Linux administration, firewall management, and cybersecurity testing.
+## Environment
 
-## Host System Specifications
-
-| Component | Configuration |
+| Layer | Implementation |
 |---|---|
-| Host Operating System | Windows |
-| Processor | Intel Core i9-10900K |
-| CPU | 10 Cores / 20 Threads |
-| Memory | 32 GB RAM |
-| Virtualization Software | VMware Workstation Pro 26H1 |
-| Hypervisor | Proxmox VE 9.2.2 |
+| Physical host | Windows PC, Intel Core i9-10900K, 10 cores / 20 threads, 32 GB RAM |
+| Desktop virtualization | VMware Workstation Pro 26H1 |
+| Nested hypervisor | Proxmox VE 9.2.2 (Debian-based) |
+| Proxmox virtual CPU | 4 vCPUs (1 socket, 4 cores) |
+| Proxmox virtual RAM | 16,000 MB configured (15.20 GiB displayed in Proxmox) |
+| Proxmox virtual disk | 200 GB virtual disk, split VMDK; guest root filesystem displays a smaller allocation |
+| Proxmox virtualization option | Intel VT-x/EPT pass-through enabled |
+| VMware virtual network | NAT |
+| Proxmox management address | `192.168.10.10/24`, gateway `192.168.10.2` |
 
-## Virtualization Architecture
+### Evidence: VMware configuration
 
-I installed VMware Workstation Pro on my Windows computer and deployed Proxmox VE as a nested virtual machine.
+![VMware VM CPU and nested virtualization settings](screenshots/vmware-nested-virtualization.png)
 
-This allows Proxmox to manage multiple virtual machines without requiring a separate physical server.
+![VMware VM resources and storage configuration](screenshots/vmware-vm-configuration.png)
 
-### Proxmox Configuration
+## Proxmox virtual machine inventory
 
-| Resource | Configuration |
-|---|---|
-| Virtual CPUs | 4 |
-| Allocated Memory | 16 GB |
-| Virtual Disk | 200 GB |
-| Network Connection | NAT |
-| Nested Virtualization | Enabled |
-| Management IP | 192.168.10.10/24 |
-| Gateway | 192.168.10.2 |
+| VM ID | VM name | Function | Observed evidence |
+|---|---|---|---|
+| 201 | `prod-fw` | pfSense firewall | WAN/LAN and VLAN configuration shown in pfSense console and web UI |
+| 202 | `prod-Kali` | Kali Linux | Kali 2026.3 and `eth0` interface shown |
+| 203 | `prod-docker` | Ubuntu Server / Docker / Portainer | Ubuntu 26.04.1 LTS, running Portainer container shown |
 
-### Virtual Machines
+![Proxmox VM inventory](screenshots/proxmox-virtual-machines.png)
 
-I created three primary virtual machines inside Proxmox.
+## Network bridges
 
-| VM ID | Name | Purpose |
-|---|---|---|
-| 201 | prod-fw | pfSense Firewall |
-| 202 | prod-Kali | Kali Linux Security Testing |
-| 203 | prod-docker | Ubuntu Server, Docker, and Portainer |
+| Name | Type | Address shown in Proxmox | VLAN aware | Attached port | Role |
+|---|---|---|---|---|---|
+| `vmbr0` | Linux Bridge | `192.168.10.10/24` | No | `nic0` | Management / upstream VMware NAT |
+| `vmbr1` | Linux Bridge | `10.10.1.0/24` | Yes | None | Internal lab network / tagged VLAN support |
 
-Each virtual machine serves a specific purpose within the cybersecurity lab.
+![Proxmox network bridges](screenshots/proxmox-network-bridges.png)
 
-## Virtual Network Configuration
+**Address review:** `10.10.1.0/24` is the network address of its `/24` subnet. That is not a normal usable host address. This setting requires review; it is not presented as a validated management IP. The separate pfSense LAN address `10.10.1.254/24` is confirmed in its console.
 
-I configured two Linux network bridges within Proxmox.
+## Proxmox host verification
 
-### vmbr0 — Management Network
+The Proxmox Summary page confirms Proxmox VE 9.2.2 with four virtual CPUs. At the time of capture, memory usage was approximately 7.96 GiB out of 15.20 GiB and swap usage was approximately 1.93 GiB out of 8 GiB. These are observations, not sustained benchmark measurements.
 
-- **Type:** Linux Bridge
-- **IP Address:** 192.168.10.10/24
-- **Gateway:** 192.168.10.2
-- **Physical Interface:** nic0
-- **VLAN Aware:** No
-- **Status:** Active
+![Proxmox node summary](screenshots/proxmox-server-summary.png)
 
-This bridge provides network connectivity for Proxmox and the external side of the pfSense firewall through VMware NAT.
+## Troubleshooting performed
 
-### vmbr1 — Internal Lab Network
+### Hardware virtualization initially disabled
 
-- **Type:** Linux Bridge
-- **Configured Address:** 10.10.1.0/24
-- **Physical Interface:** None
-- **VLAN Aware:** Yes
-- **Status:** Active
-- **Purpose:** Internal cybersecurity lab networking
+The Windows host initially reported virtualization as disabled. I enabled Intel hardware virtualization in BIOS and selected VMware's **Virtualize Intel VT-x/EPT** option to support nested VMs.
 
-This bridge supports virtual networking and VLAN-tagged traffic within the lab.
+### Virtual disk consistency warning
 
-**Configuration note:** The address 10.10.1.0/24 appears in the bridge configuration and needs verification because it represents the subnet address rather than a typical usable host address.
+At the initial startup of the new Proxmox VM, VMware flagged a virtual disk consistency error. I used its repair option, after which the Proxmox installer successfully booted. A long-term disk health assessment was not conducted.
 
-### pfSense Network Interfaces
+### Updates failed with `401 Unauthorized`
 
-| Interface | Address | Purpose |
-|---|---|---|
-| WAN | 192.168.10.129/24 | External connectivity |
-| LAN | 10.10.1.254/24 | Internal lab gateway |
+Proxmox's preconfigured Enterprise and Ceph Enterprise update repositories required a paid subscription. `apt update` returned HTTP 401 errors for those sources. I disabled both Enterprise sources, enabled `pve-no-subscription`, and verified that the package update refresh reported `TASK OK`.
 
-I also configured VLAN-aware networking to support multiple logical networks within the lab.
+![Configured Proxmox repositories](screenshots/proxmox-apt-repositories.png)
 
-Detailed VLAN assignments and firewall rules are documented separately.
+## Outcome and next validation
 
-## Troubleshooting and Problem Solving
+A running nested Proxmox environment is documented, with three named cybersecurity VMs and two Linux bridges. Future validation will confirm actual VM network adapters, VLAN tags, traffic isolation, host resource headroom, and address correctness.
 
-### Hardware Virtualization
-
-**Issue:** Hardware virtualization was initially disabled on the Windows host.
-
-**Resolution:** Enabled Intel virtualization support in the BIOS and configured VMware to expose hardware-assisted virtualization to Proxmox.
-
-### VMware Virtual Disk Error
-
-**Issue:** VMware reported an internal virtual disk consistency error during the initial startup.
-
-**Resolution:** Used VMware's disk repair functionality and successfully booted Proxmox.
-
-### Proxmox Package Repository Errors
-
-**Issue:** Package updates failed with HTTP 401 Unauthorized errors because the Enterprise repositories required a subscription.
-
-**Resolution:**
-- Disabled the Proxmox Enterprise repository.
-- Disabled the Ceph Enterprise repository.
-- Enabled the Proxmox No-Subscription repository.
-- Verified successful package database refresh.
-
-## Results
-
-Successfully deployed a nested virtualization environment capable of running multiple cybersecurity virtual machines.
-
-Configured virtual networking to support firewall administration, Linux systems, and VLAN-based network segmentation.
-
-Established a working foundation for future security monitoring, vulnerability assessments, and controlled network testing.
-
-## Technical Skills Demonstrated
-
-- Hypervisor Administration
-- Nested Virtualization
-- Virtual Machine Deployment
-- Linux Network Bridges
-- VLAN-Aware Networking
-- IP Addressing and Subnetting
-- Network Troubleshooting
-- Package Repository Management
-- Infrastructure Documentation
-
-## Supporting Evidence
-
-Screenshots collected for this section:
-
-- `proxmox-server-summary.png`
-- `proxmox-network-bridges.png`
-- `proxmox-virtual-machines.png`
-
-Screenshots will be uploaded and linked as supporting evidence after review.
-
-## Future Improvements
-
-- Verify the internal bridge IP configuration.
-- Validate VLAN routing and network isolation.
-- Document resource utilization under load.
-- Conduct connectivity and firewall policy tests.
+**Skills:** VMware Workstation, nested virtualization, Proxmox administration, Linux bridges, static management addressing, troubleshooting, package repositories.

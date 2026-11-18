@@ -1,0 +1,38 @@
+section,capture_id,repository_path,original_filename,description,size_KiB
+wazuh,20261116-220001,screenshots/wazuh/01-wazuh-overview.png,image(20261116-220001).png,Wazuh dashboard became accessible during initial manager deployment,146.7
+wazuh,20261117-005703,screenshots/wazuh/02-kali-agent-manager-config.png,image(20261117-005703).png,Kali agent configuration points to Wazuh Manager 10.10.1.52:1514 TCP,19.0
+wazuh,20261117-005206,screenshots/wazuh/03-ubuntu-original-wrong-address.png,image(20261117-005206).png,Ubuntu agent initially configured to incorrect 10.0.0.2 manager address,115.0
+wazuh,20261117-010550,screenshots/wazuh/04-docker-listener-config.png,image(20261117-010550).png,Ubuntu Wazuh agent ossec.conf docker-listener enabled,81.2
+wazuh,20261117-013617,screenshots/wazuh/05-ubuntu-agent-active.png,image(20261117-013617).png,Ubuntu agent 002 active at 10.10.30.50 on Wazuh dashboard,96.6
+wazuh,20261117-013806,screenshots/wazuh/06-docker-listener-started.png,image(20261117-013806).png,Wazuh docker-listener module started and began listening for Docker events,14.5
+wazuh,20261117-013929,screenshots/wazuh/07-docker-hello-world-test.png,image(20261117-013929).png,Docker hello-world container ran successfully with sudo,29.8
+wazuh,20261117-014103,screenshots/wazuh/08-ubuntu-threat-hunting.png,image(20261117-014103).png,Threat Hunting shows Ubuntu agent security alerts,76.7
+wazuh,20261117-014216,screenshots/wazuh/09-docker-search-sudo-only.png,image(20261117-014216).png,Search for docker returned sudo events only; Docker alert ingestion not proven,78.3
+pfsense,20261118-001552,screenshots/pfsense/01-package-search.png,image(20261118-001552).png,pfSense package search found wazuh-agent-4.14.10 while 4.7.2 was unavailable,109.9
+pfsense,20261118-001718,screenshots/pfsense/02-freebsd-version-mismatch.png,image(20261118-001718).png,FreeBSD repository version mismatch warning during proposed package install,60.1
+pfsense,20261118-003240,screenshots/pfsense/03-manager-address-config.png,image(20261118-003240).png,pfSense Wazuh agent configuration targets manager 10.10.1.52,19.0
+pfsense,20261118-003625,screenshots/pfsense/04-wazuh-api-error.png,image(20261118-003625).png,"Wazuh dashboard temporary API connection failure, HTTP 500",55.0
+pfsense,20261118-003750,screenshots/pfsense/05-wazuh-manager-timeout.png,image(20261118-003750).png,Wazuh manager systemd service failed with timeout,122.1
+pfsense,20261118-003816,screenshots/pfsense/06-manager-timeout-journal.png,image(20261118-003816).png,journalctl confirmed service startup timeout,128.2
+pfsense,20261118-003908,screenshots/pfsense/07-systemd-override-editor.png,image(20261118-003908).png,Editing systemd override for Wazuh Manager startup timeout,52.0
+pfsense,20261118-004121,screenshots/pfsense/08-wazuh-manager-restart.png,image(20261118-004121).png,Systemd override saved and manager restart attempted,124.6
+pfsense,20261118-004206,screenshots/pfsense/09-firewall-agent-disconnected.png,image(20261118-004206).png,pfSense agent previously appeared disconnected in Wazuh (version 4.7.2),22.0
+pfsense,20261118-004651,screenshots/pfsense/10-agent-service-running.png,image(20261118-004651).png,pfSense Wazuh agent components reported running,22.3
+pfsense,20261118-004730,screenshots/pfsense/11-merged-mgt-permission-denied.png,image(20261118-004730).png,Agent log reported Permission denied opening shared merged.mgt,117.9
+pfsense,20261118-004804,screenshots/pfsense/12-shared-directory-before-fix.png,image(20261118-004804).png,Shared directory owned root:wazuh with root-only write access; merged.mgt absent,141.2
+pfsense,20261118-004907,screenshots/pfsense/13-shared-directory-permission-change.png,image(20261118-004907).png,Shared directory changed to drwxrwx--- root:wazuh,146.5
+pfsense,20261118-004953,screenshots/pfsense/14-agent-restart-log.png,image(20261118-004953).png,pfSense Wazuh agent restarted successfully; new log shows modules active,400.6
+pfsense,20261118-010839,screenshots/pfsense/15-shared-firewall-log-config.png,image(20261118-010839).png,Wazuh centralized agent config monitors /var/log/filter.log as syslog,27.9
+pfsense,20261118-011320,screenshots/pfsense/16-custom-pfsense-rule.png,image(20261118-011320).png,Wazuh custom pfSense firewall drop rule ID 87701 editor,96.5
+nessus,20261118-012422,screenshots/nessus/01-nessus-vm-network.png,image(20261118-012422).png,VM 206 network configured to 10.10.1.53/24 with gateway 10.10.1.254,125.0
+nessus,20261118-020327,screenshots/nessus/02-nessus-initial-web-setup.png,image(20261118-020327).png,Nessus initial setup screen at https://10.10.1.53:8834,180.5
+nessus,20261118-021143,screenshots/nessus/03-plugin-compiling-notice.png,image(20261118-021143).png,Nessus Essentials dashboard reported plugins compiling,42.5
+nessus,20261118-024836,screenshots/nessus/04-plugin-feed-update.png,image(20261118-024836).png,Nessus logs show plugin feed update completion and service restart,127.7
+nessus,20261118-025221,screenshots/nessus/05-plugin-load-failed.png,image(20261118-025221).png,Nessus plugin load failed and rebuilt plugins,44.0
+nessus,20261118-031228,screenshots/nessus/06-plugin-rebuilt-successfully.png,image(20261118-031228).png,Nessus logs show plugins rebuilt successfully,130.4
+nessus,20261118-031750,screenshots/nessus/07-root-filesystem-full.png,image(20261118-031750).png,Nessus Ubuntu root filesystem 19 GB at 100% full,39.6
+nessus,20261118-032434,screenshots/nessus/08-proxmox-disk-40gb.png,image(20261118-032434).png,Proxmox VM 206 has 40 GB virtual disk and 4 GB RAM,28.7
+nessus,20261118-032741,screenshots/nessus/09-lvm-volume-19gb.png,image(20261118-032741).png,"lsblk shows 40 GB disk, 38 GB LVM partition, 19 GB root logical volume",31.9
+nessus,20261118-032827,screenshots/nessus/10-lvm-free-space-19gb.png,image(20261118-032827).png,vgs confirms 19 GB unallocated space in ubuntu-vg,42.9
+nessus,20261118-032912,screenshots/nessus/11-lvm-online-expansion-success.png,image(20261118-032912).png,lvextend -r succeeded; root filesystem now 38 GB with 19 GB free,63.8
+nessus,20261118-033130,screenshots/nessus/12-nessus-new-scan-screen.png,image(20261118-033130).png,Nessus All Scans after storage repair; compile warning absent and New Scan button visible,80.0
